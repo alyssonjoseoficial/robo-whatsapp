@@ -1,5 +1,5 @@
 const { Client, LocalAuth } = require('whatsapp-web.js');
-const qrcode = require('qrcode-terminal');
+const qrcodeLib = require('qrcode');
 const axios = require('axios');
 const cron = require('node-cron');
 const express = require('express');
@@ -10,13 +10,35 @@ const API_URL = 'https://kirontech.com.br/api/dashboard/stats.php';
 const TARGET_NUMBER = '5579998781719@c.us'; // Número de destino com o sufixo do WhatsApp
 const PORT = process.env.PORT || 3000;
 
-// Variável para armazenar a quantidade de notificações conhecidas
+// Variáveis de estado
 let lastKnownNotifications = null;
+let qrCodeDataUrl = null; // Armazena a imagem base64 do QR Code
+let isConnected = false;
 
 // ================= Servidor Express (Para o Render) =================
 const app = express();
 app.get('/', (req, res) => {
-    res.send('Robô Sentinela do WhatsApp está rodando!');
+    if (isConnected) {
+        return res.send(`
+            <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+                <h1 style="color: green;">✅ Robô Conectado!</h1>
+                <p>O sentinela do WhatsApp está monitorando o sistema Control_SADMIN.</p>
+            </div>
+        `);
+    }
+
+    if (qrCodeDataUrl) {
+        return res.send(`
+            <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+                <h2>Abra o WhatsApp no celular e escaneie o código abaixo:</h2>
+                <img src="${qrCodeDataUrl}" alt="QR Code do WhatsApp" style="width: 300px; height: 300px; border: 2px solid #ccc; border-radius: 10px; padding: 10px;" />
+                <p><i>A página recarregará sozinha a cada 10 segundos...</i></p>
+                <script>setTimeout(() => window.location.reload(), 10000);</script>
+            </div>
+        `);
+    }
+
+    res.send('Aguardando a geração do QR Code... Atualize a página em alguns segundos.');
 });
 
 app.listen(PORT, () => {
@@ -33,12 +55,17 @@ const client = new Client({
 });
 
 client.on('qr', (qr) => {
-    console.log('*** ESCANEIE O QR CODE ABAIXO COM O SEU WHATSAPP ***');
-    qrcode.generate(qr, { small: true });
+    console.log('QR Code recebido. Acesse o link do Render para escanear a imagem.');
+    // Converte a string do QR para uma imagem DataURL (base64)
+    qrcodeLib.toDataURL(qr, (err, url) => {
+        if (!err) qrCodeDataUrl = url;
+    });
 });
 
 client.on('ready', () => {
     console.log('Cliente do WhatsApp conectado com sucesso!');
+    isConnected = true;
+    qrCodeDataUrl = null; // Limpa o QR Code da memória
     
     // Inicia o job de monitoramento
     iniciarMonitoramento();
