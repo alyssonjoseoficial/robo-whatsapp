@@ -124,8 +124,18 @@ async function checarNotificacoes() {
                 
                 const mensagem = `🚨 *Sentinela Kirontech* 🚨\n\nFoi detectada uma nova movimentação no sistema!\nNovas notificações: *${dif}*\nTotal de notificações pendentes: *${totalNotifications}*\n\nAcesse o painel Control_SADMIN para verificar.`;
                 
-                await client.sendMessage(TARGET_NUMBER, mensagem);
-                console.log('Mensagem enviada com sucesso!');
+                // Trata a formatação maluca do WhatsApp para números do Brasil (9º dígito)
+                const numberClean = TARGET_NUMBER.replace('@c.us', '');
+                const contactId = await client.getNumberId(numberClean);
+                
+                if (contactId) {
+                    await client.sendMessage(contactId._serialized, mensagem);
+                    console.log('Mensagem enviada com sucesso para o ID:', contactId._serialized);
+                } else {
+                    console.error('Erro: O número de destino não foi encontrado no WhatsApp. Verifique se o número está correto.');
+                    // Tenta enviar forçado mesmo assim
+                    await client.sendMessage(TARGET_NUMBER, mensagem);
+                }
                 
                 lastKnownNotifications = totalNotifications;
             } else if (totalNotifications < lastKnownNotifications) {
