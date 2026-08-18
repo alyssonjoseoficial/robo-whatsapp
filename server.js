@@ -3,6 +3,7 @@ const qrcode = require('qrcode-terminal');
 const axios = require('axios');
 const cron = require('node-cron');
 const express = require('express');
+const puppeteer = require('puppeteer');
 
 // ================= Configurações =================
 const API_URL = 'https://kirontech.com.br/api/dashboard/stats.php';
@@ -26,6 +27,7 @@ app.listen(PORT, () => {
 const client = new Client({
     authStrategy: new LocalAuth(), // Salva a sessão localmente na pasta .wwebjs_auth
     puppeteer: {
+        executablePath: puppeteer.executablePath(),
         args: ['--no-sandbox', '--disable-setuid-sandbox'] // Necessário para rodar em servidores como o Render
     }
 });
