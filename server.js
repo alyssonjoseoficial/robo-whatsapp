@@ -51,6 +51,11 @@ const client = new Client({
     puppeteer: {
         executablePath: puppeteer.executablePath(),
         args: ['--no-sandbox', '--disable-setuid-sandbox'] // Necessário para rodar em servidores como o Render
+    },
+    // Correção forçada para usar a versão mais compatível do WhatsApp Web
+    webVersionCache: {
+        type: 'remote',
+        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.3000.1041772087-alpha.html',
     }
 });
 
