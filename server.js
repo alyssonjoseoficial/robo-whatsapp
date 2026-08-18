@@ -7,7 +7,7 @@ const puppeteer = require('puppeteer');
 
 // ================= Configurações =================
 const API_URL = 'https://kirontech.com.br/api/dashboard/stats.php';
-const TARGET_NUMBER = '5579998781719@c.us'; // Número de destino com o sufixo do WhatsApp
+const TARGET_NUMBER = '557988649757@c.us'; // Número de teste do usuário
 const PORT = process.env.PORT || 3000;
 
 // Variáveis de estado
