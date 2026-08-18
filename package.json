@@ -11,8 +11,9 @@
     "axios": "^1.7.2",
     "express": "^4.19.2",
     "node-cron": "^3.0.3",
+    "puppeteer": "^22.12.1",
+    "qrcode": "^1.5.4",
     "qrcode-terminal": "^0.12.0",
-    "whatsapp-web.js": "^1.23.0",
-    "puppeteer": "^22.12.1"
+    "whatsapp-web.js": "^1.23.0"
   }
 }
