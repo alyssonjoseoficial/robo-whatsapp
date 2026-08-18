@@ -51,11 +51,6 @@ const client = new Client({
     puppeteer: {
         executablePath: puppeteer.executablePath(),
         args: ['--no-sandbox', '--disable-setuid-sandbox'] // Necessário para rodar em servidores como o Render
-    },
-    // Correção para o erro "Não é possível conectar novos dispositivos no momento"
-    webVersionCache: {
-        type: 'remote',
-        remotePath: 'https://raw.githubusercontent.com/wppconnect-team/wa-version/main/html/2.2412.54.html',
     }
 });
 
