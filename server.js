@@ -82,7 +82,15 @@ const client = new Client({
     authStrategy: new LocalAuth(), // Salva a sessão localmente na pasta .wwebjs_auth
     puppeteer: {
         executablePath: puppeteer.executablePath(),
-        args: ['--no-sandbox', '--disable-setuid-sandbox'] // Necessário para rodar em servidores como o Render
+        args: [
+            '--no-sandbox',
+            '--disable-setuid-sandbox',
+            '--disable-dev-shm-usage',
+            '--disable-accelerated-2d-canvas',
+            '--no-first-run',
+            '--no-zygote',
+            '--disable-gpu'
+        ]
     },
     // Correção forçada para usar a versão mais compatível do WhatsApp Web
     webVersionCache: {
