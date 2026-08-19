@@ -23,19 +23,22 @@ app.get('/', (req, res) => {
             <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
                 <h1 style="color: green;">✅ Robô Conectado!</h1>
                 <p>O sentinela do WhatsApp está monitorando o sistema Control_SADMIN.</p>
+                <p><a href="/test-message" target="_blank" style="padding: 10px 20px; background: blue; color: white; text-decoration: none; border-radius: 5px;">Testar Envio de Mensagem AGORA</a></p>
             </div>
-        res.send('<h1>Robô Conectado!</h1><p>O robô já está monitorando as notificações.</p><p><a href="/test-message" target="_blank">Clique aqui para enviar uma mensagem de teste AGORA</a></p>');
+        `);
     } else if (qrCodeDataUrl) {
-        res.send(`
-            <h1>Escaneie o QR Code abaixo com o WhatsApp</h1>
-            <p>O QR code atualiza automaticamente a cada 10 segundos.</p>
-            <img src="${qrCodeDataUrl}" alt="QR Code" style="max-width: 300px;">
-            <script>
-                setTimeout(() => { window.location.reload(); }, 10000);
-            </script>
+        return res.send(`
+            <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
+                <h1>Escaneie o QR Code abaixo com o WhatsApp</h1>
+                <p>O QR code atualiza automaticamente a cada 10 segundos.</p>
+                <img src="${qrCodeDataUrl}" alt="QR Code" style="max-width: 300px;">
+                <script>
+                    setTimeout(() => { window.location.reload(); }, 10000);
+                </script>
+            </div>
         `);
     } else {
-        res.send('<h1>Aguardando geração do QR Code...</h1><p>Atualize a página em alguns segundos.</p>');
+        return res.send('<h1>Aguardando geração do QR Code...</h1><p>Atualize a página em alguns segundos.</p>');
     }
 });
 
