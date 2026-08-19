@@ -24,21 +24,50 @@ app.get('/', (req, res) => {
                 <h1 style="color: green;">✅ Robô Conectado!</h1>
                 <p>O sentinela do WhatsApp está monitorando o sistema Control_SADMIN.</p>
             </div>
+        res.send('<h1>Robô Conectado!</h1><p>O robô já está monitorando as notificações.</p><p><a href="/test-message" target="_blank">Clique aqui para enviar uma mensagem de teste AGORA</a></p>');
+    } else if (qrCodeDataUrl) {
+        res.send(`
+            <h1>Escaneie o QR Code abaixo com o WhatsApp</h1>
+            <p>O QR code atualiza automaticamente a cada 10 segundos.</p>
+            <img src="${qrCodeDataUrl}" alt="QR Code" style="max-width: 300px;">
+            <script>
+                setTimeout(() => { window.location.reload(); }, 10000);
+            </script>
         `);
+    } else {
+        res.send('<h1>Aguardando geração do QR Code...</h1><p>Atualize a página em alguns segundos.</p>');
     }
+});
 
-    if (qrCodeDataUrl) {
-        return res.send(`
-            <div style="font-family: sans-serif; text-align: center; margin-top: 50px;">
-                <h2>Abra o WhatsApp no celular e escaneie o código abaixo:</h2>
-                <img src="${qrCodeDataUrl}" alt="QR Code do WhatsApp" style="width: 300px; height: 300px; border: 2px solid #ccc; border-radius: 10px; padding: 10px;" />
-                <p><i>A página recarregará sozinha a cada 10 segundos...</i></p>
-                <script>setTimeout(() => window.location.reload(), 10000);</script>
-            </div>
-        `);
+// Rota de teste manual de envio
+app.get('/test-message', async (req, res) => {
+    if (!isConnected) {
+        return res.send('Robô não está conectado ao WhatsApp ainda.');
     }
+    try {
+        const numberClean = TARGET_NUMBER.replace('@c.us', '');
+        // Cria uma variante do número forçando a adição do 9 após o DDD (caso seja 8 dígitos) ou removendo (caso já tenha)
+        let numberClean9 = numberClean;
+        if (numberClean.length === 12) { // 55 79 88649757 (12 chars) -> adiciona 9
+            numberClean9 = numberClean.substring(0, 4) + '9' + numberClean.substring(4);
+        } else if (numberClean.length === 13) { // 55 79 988649757 (13 chars) -> tira o 9
+            numberClean9 = numberClean.substring(0, 4) + numberClean.substring(5);
+        }
 
-    res.send('Aguardando a geração do QR Code... Atualize a página em alguns segundos.');
+        const contactId = await client.getNumberId(numberClean);
+        const contactId9 = await client.getNumberId(numberClean9);
+
+        let finalId = contactId || contactId9;
+        
+        if (finalId) {
+            await client.sendMessage(finalId._serialized, '🤖 *Teste do Robô:* A conexão com este número está funcionando perfeitamente!');
+            return res.send(`<h3>Sucesso!</h3><p>Mensagem enviada com sucesso para o WhatsApp detectado: <b>${finalId._serialized}</b>.</p><p>Verifique o celular!</p>`);
+        } else {
+            return res.send(`<h3>Erro de Número</h3><p>Os números <b>${numberClean}</b> e <b>${numberClean9}</b> não foram reconhecidos como válidos pelos servidores do WhatsApp.</p>`);
+        }
+    } catch (e) {
+        return res.send(`<h3>Erro Crítico</h3><p>${e.message}</p>`);
+    }
 });
 
 app.listen(PORT, () => {
